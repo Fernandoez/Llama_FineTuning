@@ -21,5 +21,4 @@ RUN pip install --upgrade pip && \
 # código via GitHub
 RUN git clone https://github.com/Fernandoez/Llama_FineTuning.git
 
-# comando padrão
-CMD ["python", "main.py"]
+WORKDIR /app/Llama_FineTuning

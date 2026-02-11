@@ -1,9 +1,9 @@
-from .model import load_model
-from .data import load_and_prepare_dataset
-from .train import train
-from .inference import run_inference
+from src.model import load_model
+from src.data import load_and_prepare_dataset
+from src.train import train
+from src.inference import run_inference
 from data.inferences_data import THEMES, TOPICS_RESTRICTIONS, QUESTION_FORMAT
-from .utils import save_results
+from src.utils import save_results
 from pathlib import Path
 
 OUT_DIR = Path("/app/output")
