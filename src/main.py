@@ -10,7 +10,7 @@ OUT_DIR = Path("/app/output")
 OUT_DIR.mkdir(exist_ok=True)
 
 def main():
-    model, tokenizer = load_model(train=True)
+    model, tokenizer = load_model()
     dataset = load_and_prepare_dataset("data/questoes.json")
     train(model, tokenizer, dataset)
     results = run_inference(model, tokenizer, THEMES, TOPICS_RESTRICTIONS, QUESTION_FORMAT)
