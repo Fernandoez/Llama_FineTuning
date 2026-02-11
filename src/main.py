@@ -11,6 +11,8 @@ OUT_DIR.mkdir(exist_ok=True)
 
 def main():
     model, tokenizer = load_model()
+    results = run_inference(model, tokenizer, THEMES, TOPICS_RESTRICTIONS, QUESTION_FORMAT)
+    save_results(results, outputh_path_xlsx = "/app/output/questoes_geradas_ZS.xlsx", outputh_path_json= "/app/output/questoes_geradas_ZS.json")
     dataset = load_and_prepare_dataset("data/questoes.json")
     train(model, tokenizer, dataset)
     results = run_inference(model, tokenizer, THEMES, TOPICS_RESTRICTIONS, QUESTION_FORMAT)
