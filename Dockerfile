@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
@@ -16,7 +16,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # dependências python
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt
 
 # código via GitHub
 RUN git clone https://github.com/Fernandoez/Llama_FineTuning.git
