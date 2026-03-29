@@ -1,4 +1,4 @@
-unsloth
+unsloth vllm
 torch
 datasets
 trl
