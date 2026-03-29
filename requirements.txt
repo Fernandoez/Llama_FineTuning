@@ -5,3 +5,4 @@ trl
 transformers
 pandas
 openpyxl
+python-dotenv

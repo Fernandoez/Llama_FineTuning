@@ -1,11 +1,11 @@
 from trl import SFTTrainer
 from transformers import TrainingArguments
 from unsloth import is_bfloat16_supported, FastLanguageModel
-from .config import MAX_SEQ_LENGTH, SEED
+from .config import Config
 
-def prepare_model_for_training(model):
+def prepare_model_for_training(model, cfg: Config):
 
-    model = FastLanguageModel.get_peft_model(
+    return FastLanguageModel.get_peft_model(
         model,
         r = 16,
         target_modules = ["q_proj", "k_proj", "v_proj", "o_proj",
@@ -14,21 +14,20 @@ def prepare_model_for_training(model):
         lora_dropout = 0,
         bias = "none",
         use_gradient_checkpointing = "unsloth",
-        random_state = SEED,
+        random_state = cfg.SEED,
         use_rslora = False,
         loftq_config = None,
     )
-    return model
 
-def train(model, tokenizer, dataset):
-    model = prepare_model_for_training(model)
+def train(model, tokenizer, dataset, cfg: Config):
+    model = prepare_model_for_training(model, cfg)
 
     trainer = SFTTrainer(
         model = model,
         tokenizer = tokenizer,
         train_dataset = dataset,
         dataset_text_field = "text",
-        max_seq_length = MAX_SEQ_LENGTH,
+        max_seq_length = cfg.MAX_SEQ_LENGTH,
         dataset_num_proc = 2,
         packing = False,
         args = TrainingArguments(

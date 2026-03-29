@@ -1,35 +1,44 @@
 import torch
 from unsloth import FastLanguageModel
 from unsloth.chat_templates import get_chat_template
+from data.inferences_data import SYSTEM_PROMPT
 
 def prepare_tokenizer_for_inference(tokenizer):
 
-    #Aplica o template de chat do LLaMA 3.1 ao tokenizer.
+    #Aplicando template de chat do LLaMA 3.1 ao tokenizer.
 
-    tokenizer = get_chat_template(
+    return get_chat_template(
         tokenizer,
         chat_template="llama-3.1",
     )
-    return tokenizer
 
 def inference(model, tokenizer, instruction):
     FastLanguageModel.for_inference(model)
     messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": instruction},
     ]
     inputs = tokenizer.apply_chat_template(
         messages,
         tokenize = True,
-        add_generation_prompt = True, # Must add for generation
+        add_generation_prompt = True,
         return_tensors = "pt",
     ).to("cuda")
-  
-    outputs = model.generate(input_ids = inputs, max_new_tokens = 1024, use_cache = True)
-    generated_ids = outputs[0][inputs.shape[1]:]
-    output_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
-    return output_text
 
-def run_inference(model, tokenizer, themes, topics_restriction, question_format):
+    with torch.no_grad():
+        outputs = model.generate(
+            input_ids = inputs,
+            max_new_tokens = 1024,
+            temperature=0.6,
+            top_p=0.9,
+            do_sample=True,
+            use_cache=True
+        )
+  
+    generated_ids = outputs[0][inputs.shape[1]:]
+    return tokenizer.decode(generated_ids, skip_special_tokens=True)
+
+def run_inference(model, tokenizer, themes, topics_restriction, question_format, stage: str):
     
     tokenizer = prepare_tokenizer_for_inference(tokenizer)
 
@@ -42,7 +51,7 @@ def run_inference(model, tokenizer, themes, topics_restriction, question_format)
                 "Temas": theme,
                 "Tópicos": topic,
                 "Prompt": instruction,
-                "Resultado_FT": output
+                stage: output
             })
     
     return results

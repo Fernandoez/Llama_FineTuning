@@ -1,35 +1,48 @@
 from datasets import load_dataset
+from unsloth.chat_templates import get_chat_template
+from data.inferences_data import SYSTEM_PROMPT
 
-alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+REQUIRED_COLUMNS = {"instruction", "input", "output"}
 
-### Instruction:
-{}
-
-### Input:
-{}
-
-### Response:
-{}"""
-
+def validate_dataset_columns(dataset):
+    missing = REQUIRED_COLUMNS - set(dataset.column_names)
+    if missing:
+        raise ValueError(f"Colunas ausentes no dataset: {missing}")
+    
 def formatting_prompts_func(examples, tokenizer):
     
-    EOS_TOKEN = tokenizer.eos_token # Adicionado ao final de cada questão
-
-    instructions = examples["instruction"]
-    inputs       = examples["input"]
-    outputs      = examples["output"]
     texts = []
-    for instruction, input, output in zip(instructions, inputs, outputs):
-      # EOS_TOKEN tem que ser adicionado para o modelo não ficar gerando para sempre
-        text = alpaca_prompt.format(instruction, input, output) + EOS_TOKEN
-        texts.append(text)
-    return { "text" : texts}
+    for instruction, input_text, output in zip(examples["instruction"], examples["input"], examples["output"]):
+        user_content = instruction
+        if input_text:
+            user_content += "\nInput:\n" + input_text
+
+        conversation = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_content},
+            {"role": "assistant", "content": output}
+        ]
+        texts.append(
+            tokenizer.apply_chat_template(
+                conversation,
+                tokenize=False,
+                add_generation_prompt=False,
+            )
+        )
+
+    return {"text": texts}
+
 
 def load_and_prepare_dataset(json_path, tokenizer):
+    tokenizer = get_chat_template(
+        tokenizer,
+        chat_template="llama-3.1",
+    )
 
     dataset = load_dataset("json", data_files={"train":json_path}, split = "train")
+    validate_dataset_columns(dataset)
 
-    #aplicando a formatação compatível para o Llama 3.1
+    #formatando no padrão do modelo
     dataset = dataset.map(
         lambda x: formatting_prompts_func(x, tokenizer), 
         batched = True,

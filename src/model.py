@@ -1,11 +1,11 @@
 from unsloth import FastLanguageModel
-from .config import *
+from .config import Config
 
-def load_model():
+def load_model(cfg: Config):
     model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name = MODEL_NAME,
-    max_seq_length = MAX_SEQ_LENGTH,
-    dtype = DTYPE,
-    load_in_4bit = LOAD_IN_4BIT,
+    model_name = cfg.MODEL_NAME,
+    max_seq_length = cfg.MAX_SEQ_LENGTH,
+    dtype = cfg.DTYPE,
+    load_in_4bit = cfg.LOAD_IN_4BIT,
     )
     return model, tokenizer
