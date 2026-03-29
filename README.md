@@ -56,4 +56,5 @@ Este projeto é destinado a fins acadêmicos.
 
 ## Autor
 Fernando Euzebio Zimerman
+
 Projeto desenvolvido como parte de pesquisa de mestrado em Ciência da Computação (UFOP).
